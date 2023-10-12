@@ -24,7 +24,7 @@ origins = [
     "http://localhost:4173",
     "http://localhost:4174",
     "http://localhost:3000",
-    "https://your-frontend-domain.com",
+    "https://lisa-frontend-service.onrender.com",
 ]
 
 # CORS - Middleware
