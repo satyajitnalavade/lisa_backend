@@ -5,6 +5,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from decouple import config
+from pathlib import Path
 import openai 
 import uvicorn
 
@@ -62,7 +63,13 @@ async def post_audio(file: UploadFile = File(...)):
     # Save file from Frontend
     with open(file.filename,"wb") as buffer:
         buffer.write(file.file.read())
-    audio_input=open(file.filename, "rb")
+    # Convert the filename string to a Path object
+    filename_path = Path(file.filename)
+
+    # Modify the filename to have a '.wav' extension
+    myfile = filename_path.with_suffix('.wav').resolve()
+
+    audio_input=open(myfile, "rb")
 
 
     # Decode Audio
