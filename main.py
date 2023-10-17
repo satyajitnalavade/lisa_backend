@@ -8,6 +8,7 @@ from decouple import config
 from pathlib import Path
 import openai 
 import uvicorn
+from pydantic import BaseModel
 
 # Custom Function Imports
 from functions.database import store_messages, reset_messages
@@ -26,6 +27,8 @@ origins = [
     "http://localhost:4174",
     "http://localhost:3000",
     "https://lisa-frontend-service.onrender.com",
+    "https://lisa-frontend-chatservice.onrender.com",
+    "http://localhost:8080",
 ]
 
 # CORS - Middleware
@@ -104,7 +107,30 @@ async def post_audio(file: UploadFile = File(...)):
     # return StreamingResponse(iterfile(), media_type="audio/mpeg")
     return StreamingResponse(iterfile(), media_type="application/octet-stream")
 
+class TextInputRequest(BaseModel):
+    text_input: str
+
+# New endpoint for handling text input
+@app.post("/post_text")
+async def post_text(request_data: TextInputRequest):
+    text_input = request_data.text_input
+
+    if not text_input:
+        return HTTPException(status_code=400, detail="Text input is required")
+
+    chat_response = get_chat_response(text_input)
+
+    if not chat_response:
+        return HTTPException(status_code=400, detail="Failed to get chat response")
+
+    store_messages(text_input, chat_response)
+
+    return {"chat_response": chat_response}
+
     #print(chat_response)
+
+    return "Done"
+
 
     if __name__ == "__main__":
     # Use uvicorn to run the app
